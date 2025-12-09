@@ -23,6 +23,10 @@ namespace StatCan.Themes.VuetifyTheme
                 .SetUrl("~/VuetifyTheme/dist/vuetify-theme.css", "~/VuetifyTheme/dist/vuetify-theme.css")
                 .SetVersion("1.0.0");
             _manifest
+                .DefineStyle("material-icons")
+                .SetUrl("https://fonts.googleapis.com/icon?family=Material+Icons")
+                .SetVersion("0.7.2");
+            _manifest
                 .DefineScript("vuetify-theme")
                 .SetDependencies("vuejs")
                 .SetUrl("~/VuetifyTheme/dist/vuetify-theme.umd.min.js", "~/VuetifyTheme/dist/vuetify-theme.umd.js")

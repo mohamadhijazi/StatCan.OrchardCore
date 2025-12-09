@@ -16,6 +16,12 @@
     </ItemGroup>
   </Target>
 
+  <!-- Ensure common packages are available to projects that import these targets -->
+  <ItemGroup>
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
+    <PackageReference Include="HtmlSanitizer" Version="8.2.871-beta" />
+  </ItemGroup>
+
   <Target Name="BeforePackageManagement" BeforeTargets="ApplyPackageManagement">
     <Message Text="BeforePackageManagement: %(PackageReference.Identity)@%(PackageReference.Version)" Importance="low" />
   </Target>

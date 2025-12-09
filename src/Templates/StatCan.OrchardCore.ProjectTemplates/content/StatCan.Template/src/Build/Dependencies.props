@@ -1,9 +1,9 @@
 <Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
 
   <PropertyGroup>
-    <AspNetCoreTargetFramework>net5.0</AspNetCoreTargetFramework>
+    <AspNetCoreTargetFramework>net8.0</AspNetCoreTargetFramework>
     <!--Change the version numbers here when upgrading Orchard / StatCan package reference versions.-->
-    <OrchardCoreVersion>$(TemplateOrchardPackageVersion)</OrchardCoreVersion>
+    <OrchardCoreVersion>2.2.1</OrchardCoreVersion>
     <StatCanOrchardCoreVersion>$(TemplateStatCanOrchardPackageVersion)</StatCanOrchardCoreVersion>
   </PropertyGroup>
 

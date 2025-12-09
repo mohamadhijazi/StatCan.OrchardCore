@@ -18,7 +18,8 @@ namespace StatCan.OrchardCore.ContentFields.MultiValueTextField.Settings
             S = localizer;
         }
 
-        public override IDisplayResult Edit(ContentPartFieldDefinition partFieldDefinition)
+    [System.Obsolete]
+    public override IDisplayResult Edit(ContentPartFieldDefinition partFieldDefinition)
         {
             return Initialize<MultiValueTextFieldSettingsViewModel>("MultiValueTextFieldEditorSettings_Edit", model =>
             {
@@ -31,7 +32,7 @@ namespace StatCan.OrchardCore.ContentFields.MultiValueTextField.Settings
             .Location("Editor");
         }
 
-        public override async Task<IDisplayResult> UpdateAsync(ContentPartFieldDefinition partFieldDefinition, UpdatePartFieldEditorContext context)
+    public override async Task<IDisplayResult> UpdateAsync(ContentPartFieldDefinition partFieldDefinition, UpdatePartFieldEditorContext context)
         {
             if (partFieldDefinition.Editor() == "PredefinedList")
             {

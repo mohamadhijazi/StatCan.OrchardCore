@@ -19,7 +19,8 @@ namespace StatCan.OrchardCore.ContentFields.PredefinedGroup.Settings
             S = localizer;
         }
 
-        public override IDisplayResult Edit(ContentPartFieldDefinition partFieldDefinition)
+    [System.Obsolete]
+    public override IDisplayResult Edit(ContentPartFieldDefinition partFieldDefinition)
         {
             return Initialize<PredefinedGroupSettingsViewModel>("TextFieldPredefinedGroupEditorSettings_Edit", model =>
             {

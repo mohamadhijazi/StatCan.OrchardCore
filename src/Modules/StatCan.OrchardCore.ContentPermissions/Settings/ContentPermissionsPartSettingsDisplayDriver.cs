@@ -10,7 +10,7 @@ namespace Etch.OrchardCore.ContentPermissions.Settings
 {
     public class ContentPermissionsPartSettingsDisplayDriver : ContentTypePartDefinitionDisplayDriver
     {
-        public override IDisplayResult Edit(ContentTypePartDefinition contentTypePartDefinition, IUpdateModel updater)
+        public IDisplayResult Edit(ContentTypePartDefinition contentTypePartDefinition, IUpdateModel updater)
         {
             if (!string.Equals(nameof(ContentPermissionsPart), contentTypePartDefinition.PartDefinition.Name))
             {
@@ -25,7 +25,7 @@ namespace Etch.OrchardCore.ContentPermissions.Settings
             }).Location("Content");
         }
 
-        public override async Task<IDisplayResult> UpdateAsync(ContentTypePartDefinition contentTypePartDefinition, UpdateTypePartEditorContext context)
+    public override async Task<IDisplayResult> UpdateAsync(ContentTypePartDefinition contentTypePartDefinition, UpdateTypePartEditorContext context)
         {
             if (!string.Equals(nameof(ContentPermissionsPart), contentTypePartDefinition.PartDefinition.Name))
             {

@@ -4,3 +4,12 @@
 {
   display: inline-block !important;
 }
+.ta-wrapper {
+display: flex;
+min-height: 100vh;
+flex-direction: column;
+background: var(--oc-theme-background, #fff);
+color: var(--oc-theme-foreground, #222);
+}
+.ta-navbar-top { z-index: 1030; }
+.ta-content { flex: 1; padding: 1rem; }

@@ -4,6 +4,9 @@ using OrchardCore.ContentManagement;
 using OrchardCore.ContentManagement.Metadata;
 using System;
 using System.Linq;
+using OrchardCore.ContentManagement.Metadata.Models;
+using System.Reflection;
+using System.Threading.Tasks;
 
 namespace Etch.OrchardCore.ContentPermissions.Services 
 {
@@ -68,9 +71,36 @@ namespace Etch.OrchardCore.ContentPermissions.Services
 
         public ContentPermissionsPartSettings GetSettings(ContentPermissionsPart part) 
         {
-            var contentTypeDefinition = _contentDefinitionManager.GetTypeDefinition(part.ContentItem.ContentType);
-            var contentTypePartDefinition = contentTypeDefinition.Parts.FirstOrDefault(x => string.Equals(x.PartDefinition.Name, nameof(ContentPermissionsPart)));
-            return contentTypePartDefinition.GetSettings<ContentPermissionsPartSettings>();
+            // Reflection-compatible retrieval of content type definition
+            var contentTypeDefinition = GetTypeDefinitionCompat(part.ContentItem.ContentType);
+            var contentTypePartDefinition = contentTypeDefinition?.Parts.FirstOrDefault(x => string.Equals(x.PartDefinition.Name, nameof(ContentPermissionsPart)));
+            return contentTypePartDefinition?.GetSettings<ContentPermissionsPartSettings>();
+        }
+
+        private ContentTypeDefinition GetTypeDefinitionCompat(string name)
+        {
+            if (_contentDefinitionManager == null) return null;
+
+            // Try synchronous method
+            var syncMethod = _contentDefinitionManager.GetType().GetMethod("GetTypeDefinition", new Type[] { typeof(string) });
+            if (syncMethod != null)
+            {
+                return (ContentTypeDefinition)syncMethod.Invoke(_contentDefinitionManager, new object[] { name });
+            }
+
+            // Try async method
+            var asyncMethod = _contentDefinitionManager.GetType().GetMethod("GetTypeDefinitionAsync", new Type[] { typeof(string) });
+            if (asyncMethod != null)
+            {
+                var task = asyncMethod.Invoke(_contentDefinitionManager, new object[] { name });
+                if (task != null)
+                {
+                    var awaiter = task.GetType().GetMethod("GetAwaiter").Invoke(task, null);
+                    return (ContentTypeDefinition)awaiter.GetType().GetMethod("GetResult").Invoke(awaiter, null);
+                }
+            }
+
+            return null;
         }
 
         #endregion

@@ -23,4 +23,9 @@
     <FrameworkReference Include="Microsoft.AspNetCore.App" />
   </ItemGroup>
 
+  <ItemGroup>
+    <!-- Make compatibility extension methods available to scripting module -->
+    <ProjectReference Include="..\..\Lib\StatCan.OrchardCore.Extensions\StatCan.OrchardCore.Extensions.csproj" />
+  </ItemGroup>
+
 </Project>

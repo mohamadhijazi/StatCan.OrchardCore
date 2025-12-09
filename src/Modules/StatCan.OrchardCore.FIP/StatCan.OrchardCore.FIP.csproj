@@ -18,4 +18,9 @@
     <PackageReference Include="OrchardCore.DisplayManagement" Version="$(OrchardCoreVersion)" />
   </ItemGroup>
 
+  <ItemGroup>
+    <!-- Reference shared compatibility extensions so migrations can use the shim helpers -->
+    <ProjectReference Include="..\..\Lib\StatCan.OrchardCore.Extensions\StatCan.OrchardCore.Extensions.csproj" />
+  </ItemGroup>
+
 </Project>

@@ -3,12 +3,41 @@
 @inject OrchardCore.ContentManagement.Metadata.IContentDefinitionManager ContentDefinitionManager
 
 @{
-    var contentItem = (IContent)Model.ContentItem;
-    var contentTypeDisplayText = ContentDefinitionManager.GetTypeDefinition((string)Model.ContentItem.ContentType).DisplayName;
-    var contentItemDisplayText = contentItem.ContentItem.DisplayText;
-    var widgetContentTypes = (IEnumerable<ContentTypeDefinition>)Model.ContainedContentTypes;
-    var displayName = string.IsNullOrEmpty(contentItemDisplayText) ? contentTypeDisplayText : $"{contentItemDisplayText} {contentTypeDisplayText}";
-    var editorId = "contentEditor_" + Model.PrefixValue;
+  var contentItem = (IContent)Model.ContentItem;
+
+  // Reflection-safe retrieval of ContentTypeDefinition.DisplayName
+  Func<OrchardCore.ContentManagement.Metadata.IContentDefinitionManager, string, string> getTypeDisplayName = (mgr, typeName) =>
+  {
+    try
+    {
+      var sync = mgr.GetType().GetMethod("GetTypeDefinition", new Type[] { typeof(string) });
+      if (sync != null)
+      {
+        var def = (ContentTypeDefinition)sync.Invoke(mgr, new object[] { typeName });
+        return def?.DisplayName ?? typeName;
+      }
+
+      var async = mgr.GetType().GetMethod("GetTypeDefinitionAsync", new Type[] { typeof(string) });
+      if (async != null)
+      {
+        var task = async.Invoke(mgr, new object[] { typeName });
+        if (task != null)
+        {
+          var awaiter = task.GetType().GetMethod("GetAwaiter").Invoke(task, null);
+          var def = (ContentTypeDefinition)awaiter.GetType().GetMethod("GetResult").Invoke(awaiter, null);
+          return def?.DisplayName ?? typeName;
+        }
+      }
+    }
+    catch { }
+    return typeName;
+  };
+
+  var contentTypeDisplayText = getTypeDisplayName(ContentDefinitionManager, (string)Model.ContentItem.ContentType);
+  var contentItemDisplayText = contentItem.ContentItem.DisplayText;
+  var widgetContentTypes = (IEnumerable<ContentTypeDefinition>)Model.ContainedContentTypes;
+  var displayName = string.IsNullOrEmpty(contentItemDisplayText) ? contentTypeDisplayText : $"{contentItemDisplayText} {contentTypeDisplayText}";
+  var editorId = "contentEditor_" + Model.PrefixValue;
 }
 
 <div class="widget widget-editor card my-1">

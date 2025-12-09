@@ -12,6 +12,7 @@ using Newtonsoft.Json.Linq;
 using OrchardCore.ContentManagement;
 using OrchardCore.ContentManagement.Handlers;
 using OrchardCore.ContentManagement.Metadata;
+using System.Text.Json.Nodes;
 using OrchardCore.ContentManagement.Metadata.Models;
 using OrchardCore.ContentManagement.Metadata.Settings;
 using OrchardCore.Email;
@@ -83,15 +84,22 @@ namespace StatCan.OrchardCore.Scripting
                     var user = (User)userService.GetAuthenticatedUserAsync(userClaim).GetAwaiter().GetResult();
 
                     var contentItem = GetUserSettingsAsync(contentManager, user, def).GetAwaiter().GetResult();
-                    contentItem.Merge(properties, new JsonMergeSettings { MergeArrayHandling = MergeArrayHandling.Replace });
+
+                    // Use Newtonsoft JObject merge to avoid System.Text.Json overload mismatches.
+                    var propsObj = properties as JObject ?? JObject.FromObject(properties ?? new { });
+                    var contentItemObj = JObject.FromObject(contentItem);
+                    contentItemObj.Merge(propsObj, new Newtonsoft.Json.Linq.JsonMergeSettings { MergeArrayHandling = MergeArrayHandling.Replace });
+                    contentItem = contentItemObj.ToObject<ContentItem>();
+
                     var updateContentContext = new UpdateContentContext(contentItem);
 
                     // invoke oc handlers
                     contentHandlers.InvokeAsync((handler, updateContentContext) => handler.UpdatingAsync(updateContentContext), updateContentContext, logger).GetAwaiter().GetResult();
                     contentHandlers.Reverse().InvokeAsync((handler, updateContentContext) => handler.UpdatedAsync(updateContentContext), updateContentContext, logger).GetAwaiter().GetResult();
 
-                    // set the object property
-                    user.Properties[def.Name] = JObject.FromObject(contentItem);
+                    // set the object property (convert Newtonsoft JObject -> System.Text.Json.JsonNode)
+                    var contentJson = JObject.FromObject(contentItem).ToString();
+                    user.Properties[def.Name] = JsonNode.Parse(contentJson);
 
                     userManager.UpdateAsync(user).GetAwaiter().GetResult();
                     return UpdateCustomUserSettingsStatus.Success;
@@ -225,13 +233,23 @@ namespace StatCan.OrchardCore.Scripting
         private static async Task<ContentItem> GetUserSettingsAsync(IContentManager contentManager, User user, ContentTypeDefinition settingsType)
         {
             ContentItem contentItem;
-            if (user.Properties.TryGetValue(settingsType.Name, out JToken property))
+            if (user.Properties != null)
             {
-                var existing = property.ToObject<ContentItem>();
+                // JsonObject doesn't expose TryGetValue in all target frameworks; enumerate safely.
+                var kv = user.Properties.FirstOrDefault(k => k.Key == settingsType.Name);
+                if (kv.Value != null)
+                {
+                    var json = kv.Value.ToJsonString();
+                    var existing = JObject.Parse(json).ToObject<ContentItem>();
 
-                // Create a new item to take into account the current type definition.
-                contentItem = await contentManager.NewAsync(existing.ContentType);
-                contentItem.Merge(existing);
+                    // Create a new item to take into account the current type definition.
+                    contentItem = await contentManager.NewAsync(existing.ContentType);
+                    contentItem.Merge(existing);
+                }
+                else
+                {
+                    contentItem = await contentManager.NewAsync(settingsType.Name);
+                }
             }
             else
             {

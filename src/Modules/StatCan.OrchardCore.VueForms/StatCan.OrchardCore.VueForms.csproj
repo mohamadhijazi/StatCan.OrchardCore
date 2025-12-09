@@ -27,9 +27,9 @@
     <PackageReference Include="OrchardCore.Workflows" Version="$(OrchardCoreVersion)" /> 
   </ItemGroup>
 
-  <ItemGroup>
+  <!-- <ItemGroup>
     <PackageReference Include="HtmlSanitizer" />
-  </ItemGroup>
+  </ItemGroup> -->
 
 
   <ItemGroup>

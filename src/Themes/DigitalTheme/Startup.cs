@@ -12,6 +12,7 @@ namespace StatCan.Themes.DigitalTheme
         {
              services.AddTransient<IConfigureOptions<ResourceManagementOptions>, ResourceManagementOptionsConfiguration>();
             services.AddScoped<IDataMigration, Migrations>();
+            services.AddScoped<StatCan.OrchardCore.Themes.DigitalAdmin.Services.DarkModeService>();
         }
     }
 }

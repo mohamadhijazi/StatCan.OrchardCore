@@ -66,7 +66,8 @@ namespace StatCan.OrchardCore.ContentFields.MultiValueTextField.Drivers
             });
         }
 
-        public override async Task<IDisplayResult> UpdateAsync(Fields.MultiValueTextField field, IUpdateModel updater, UpdateFieldEditorContext context)
+    [System.Obsolete]
+    public override async Task<IDisplayResult> UpdateAsync(Fields.MultiValueTextField field, IUpdateModel updater, UpdateFieldEditorContext context)
         {
             var viewModel = new EditMultiValueTextFieldViewModel();
 

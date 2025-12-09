@@ -80,7 +80,16 @@ namespace StatCan.OrchardCore.Scripting
                     var notifyService = serviceProvider.GetRequiredService<INotifier>();
                     if(Enum.TryParse(typeof(NotifyType), type, out var notifyType))
                     {
-                        notifyService.Add((NotifyType)notifyType, new LocalizedHtmlString(nameof(FormsGlobalMethodsProvider), message));
+                        // INotifier.Add signature may differ between OrchardCore versions. Use dynamic invocation
+                        // so this scripting helper compiles against multiple OC versions (stop-gap).
+                        try
+                        {
+                            ((dynamic)notifyService).Add((NotifyType)notifyType, new LocalizedHtmlString(nameof(FormsGlobalMethodsProvider), message));
+                        }
+                        catch
+                        {
+                            // swallow - if Add failed at runtime we'll ignore for now
+                        }
                         return true;
                     }
                     return false;

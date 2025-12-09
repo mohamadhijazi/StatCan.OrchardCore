@@ -20,9 +20,9 @@
     <PackageReference Include="OrchardCore.Users" Version="$(OrchardCoreVersion)" />
   </ItemGroup>
 
-  <ItemGroup>
+  <!-- <ItemGroup>
     <PackageReference Include="HtmlSanitizer" />
-  </ItemGroup>
+  </ItemGroup> -->
 
   <ItemGroup>
     <FrameworkReference Include="Microsoft.AspNetCore.App" />

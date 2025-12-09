@@ -1,3 +1,4 @@
+using System;
 using OrchardCore.ContentFields.Settings;
 using OrchardCore.ContentManagement.Metadata;
 using OrchardCore.ContentManagement.Metadata.Settings;
@@ -105,7 +106,8 @@ namespace StatCan.Themes.VuetifyTheme
                 _session.Save(menu);
             }
 
-            _contentDefinitionManager.DeleteTypeDefinition("AuthContentMenuItem");
+            // Use compatibility helper in case DeleteTypeDefinition was removed/changed in newer OrchardCore
+            DeleteTypeDefinitionCompat("AuthContentMenuItem");
 
             return 8;
         }
@@ -276,6 +278,31 @@ namespace StatCan.Themes.VuetifyTheme
                     .WithPosition("2")
                 )
             );
+        }
+
+        private void DeleteTypeDefinitionCompat(string typeName)
+        {
+            if (_contentDefinitionManager == null) return;
+
+            // Try async version first
+            var asyncMethod = _contentDefinitionManager.GetType().GetMethod("DeleteTypeDefinitionAsync", new Type[] { typeof(string) });
+            if (asyncMethod != null)
+            {
+                var task = asyncMethod.Invoke(_contentDefinitionManager, new object[] { typeName });
+                if (task != null)
+                {
+                    var awaiter = task.GetType().GetMethod("GetAwaiter").Invoke(task, null);
+                    awaiter.GetType().GetMethod("GetResult").Invoke(awaiter, null);
+                }
+                return;
+            }
+
+            // Try synchronous method
+            var syncMethod = _contentDefinitionManager.GetType().GetMethod("DeleteTypeDefinition", new Type[] { typeof(string) });
+            if (syncMethod != null)
+            {
+                syncMethod.Invoke(_contentDefinitionManager, new object[] { typeName });
+            }
         }
         private void MenuTypesMigration()
         {

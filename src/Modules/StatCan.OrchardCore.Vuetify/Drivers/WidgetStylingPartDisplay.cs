@@ -9,7 +9,7 @@ namespace StatCan.OrchardCore.Vuetify.Drivers
 {
     public class WidgetStylingPartDisplay : ContentDisplayDriver
     {
-        public override IDisplayResult Edit(ContentItem model, IUpdateModel updater)
+        public IDisplayResult Edit(ContentItem model, IUpdateModel updater)
         {
             var additionalStylingPart = model.As<WidgetStylingPart>();
 
@@ -23,8 +23,8 @@ namespace StatCan.OrchardCore.Vuetify.Drivers
                     }).Location("Settings:3");
         }
 
-        public override async Task<IDisplayResult> UpdateAsync(ContentItem model, IUpdateModel updater)
-        {
+    public Task<IDisplayResult> UpdateAsync(ContentItem model, IUpdateModel updater)
+    {
             var additionalStylingPart = model.As<WidgetStylingPart>();
 
             if (additionalStylingPart == null)
@@ -32,9 +32,14 @@ namespace StatCan.OrchardCore.Vuetify.Drivers
                 return null;
             }
 
-            await model.AlterAsync<WidgetStylingPart>(model => updater.TryUpdateModelAsync(model, Prefix));
+            var t = model.AlterAsync<WidgetStylingPart>(model => updater.TryUpdateModelAsync(model, Prefix));
+            if (t != null && !t.IsCompletedSuccessfully)
+            {
+                // ensure any async work completes
+                t.GetAwaiter().GetResult();
+            }
 
-            return await EditAsync(model, updater);
+            return Task.FromResult(Edit(model, updater));
         }
     }
 }

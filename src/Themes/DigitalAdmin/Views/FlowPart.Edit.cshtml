@@ -2,6 +2,7 @@
 @using OrchardCore.Flows.Models;
 @using OrchardCore.Flows.ViewModels;
 @using OrchardCore.Mvc.Utilities;
+@using OrchardCore.ContentManagement.Metadata.Models;
 
 @model FlowPartEditViewModel
 
@@ -14,7 +15,35 @@
     var widgetTemplatePlaceholderId = Html.Id("widgetTemplatePlaceholder");
     var parentContentType = Model.FlowPart.ContentItem.ContentType;
     string partName = ((dynamic)Model).Metadata.Name;
-    var contentTypeDisplayText = ContentDefinitionManager.GetTypeDefinition((string)Model.FlowPart.ContentItem.ContentType).DisplayName;
+    // Reflection-safe retrieval of content type display name (GetTypeDefinition may be async/removed in newer OrchardCore)
+    Func<OrchardCore.ContentManagement.Metadata.IContentDefinitionManager, string, string> getTypeDisplayName = (mgr, typeName) =>
+    {
+        try
+        {
+            var sync = mgr.GetType().GetMethod("GetTypeDefinition", new Type[] { typeof(string) });
+            if (sync != null)
+            {
+                var def = (ContentTypeDefinition)sync.Invoke(mgr, new object[] { typeName });
+                return def?.DisplayName ?? typeName;
+            }
+
+            var async = mgr.GetType().GetMethod("GetTypeDefinitionAsync", new Type[] { typeof(string) });
+            if (async != null)
+            {
+                var task = async.Invoke(mgr, new object[] { typeName });
+                if (task != null)
+                {
+                    var awaiter = task.GetType().GetMethod("GetAwaiter").Invoke(task, null);
+                    var def = (ContentTypeDefinition)awaiter.GetType().GetMethod("GetResult").Invoke(awaiter, null);
+                    return def?.DisplayName ?? typeName;
+                }
+            }
+        }
+        catch { }
+        return typeName;
+    };
+
+    var contentTypeDisplayText = getTypeDisplayName(ContentDefinitionManager, (string)Model.FlowPart.ContentItem.ContentType);
     var displayName = string.IsNullOrEmpty(Model.FlowPart.ContentItem.DisplayText) ? contentTypeDisplayText : $"{Model.FlowPart.ContentItem.DisplayText} {contentTypeDisplayText}";
 }
 

@@ -1,13 +1,15 @@
 <Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
 
   <PropertyGroup>
-    <AspNetCoreTargetFramework>net5.0</AspNetCoreTargetFramework>
-    <OrchardCoreVersion>1.0.0</OrchardCoreVersion>
+    <AspNetCoreTargetFramework>net8.0</AspNetCoreTargetFramework>
+    <OrchardCoreVersion>2.2.1</OrchardCoreVersion>
   </PropertyGroup>
 
   <ItemGroup>
     <PackageManagement Include="NetEscapades.AspNetCore.SecurityHeaders" Version="0.14.0" />
-    <PackageManagement Include="HtmlSanitizer" Version="6.0.430-beta" />
+    <!-- <PackageManagement Include="HtmlSanitizer" Version="8.2.871-beta" /> -->
+    <!-- Newtonsoft is used across many modules (JObject/JArray/JsonConvert) -->
+    <PackageManagement Include="Newtonsoft.Json" Version="13.0.3" />
     <PackageManagement Include="Octokit" Version="0.50.0" />
   </ItemGroup>
 
