@@ -8,6 +8,9 @@
   "issetuprecipe": true,
   "categories": ["vuetify"],
   "tags": ["innovation", "inno"],
+  "variables": {
+    "landingContentItemId": "[js:uuid()]" 
+  },
   "steps": [
     {
       "name": "feature",
@@ -57,18 +60,18 @@
         "StatCan.OrchardCore.CommonTypes.Page",
         "StatCan.OrchardCore.CommonTypes.MarkdownWidget",
         "StatCan.OrchardCore.Menu",
-        "DigitalAdmin",
+        "TheAdmin",
+        "SafeMode",
         "VuetifyTheme"
       ]
     },
     {
       "name": "themes",
-      "admin": "DigitalAdmin",
+      "admin": "TheAdmin",
       "site": "VuetifyTheme"
     },
     {
       "name": "Settings",
-      "Calendar": null,
       "UseCdn": false,
       "TimeZoneId": "America/Toronto",
       "AppendVersion": true,
@@ -79,15 +82,7 @@
       "AdminSettings": {
         "DisplayMenuFilter": true
       },
-      "LoginSettings": {
-        "UseSiteTheme": true
-      },
-      "ResetPasswordSettings": {
-        "UseSiteTheme": true
-      },
-      "RegistrationSettings": {
-        "UseSiteTheme": true
-      },
+       
       "LayerSettings": {
         "Zones": [
           "Header",
@@ -103,8 +98,7 @@
       "Layers": [
         {
           "Name": "All",
-          "Rule": "true",
-          "Description": null
+          "Rule": "true"
         }
       ]
     }

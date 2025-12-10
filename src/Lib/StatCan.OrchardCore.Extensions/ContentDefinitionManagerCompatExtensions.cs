@@ -49,60 +49,84 @@ namespace OrchardCore.ContentManagement.Metadata
         {
             if (manager == null) throw new ArgumentNullException(nameof(manager));
 
-            // Prefer the async API if present
-            var asyncCandidates = manager.GetType().GetMethods().Where(m => m.Name == "AlterPartDefinitionAsync").ToArray();
-            var asyncMethod = asyncCandidates.FirstOrDefault(m => m.GetParameters().Length == 2);
-            if (asyncMethod != null)
+            try
             {
-                Func<ContentPartDefinitionBuilder, Task> action = b => { alter?.Invoke(b); return Task.CompletedTask; };
-                var task = asyncMethod.Invoke(manager, new object[] { partName, action });
-                if (task != null)
+                manager.AlterPartDefinitionAsync(partName, alter).GetAwaiter().GetResult();
+
+                return;
+            }
+            catch (Exception ex)
+            {
+
+
+                // Prefer the async API if present
+                var asyncCandidates = manager.GetType().GetMethods().Where(m => m.Name == "AlterPartDefinitionAsync").ToArray();
+                var asyncMethod = asyncCandidates.FirstOrDefault(m => m.GetParameters().Length == 2);
+                if (asyncMethod != null)
                 {
-                    var awaiter = task.GetType().GetMethod("GetAwaiter").Invoke(task, null);
-                    awaiter.GetType().GetMethod("GetResult").Invoke(awaiter, null);
+                    Func<ContentPartDefinitionBuilder, Task> action = b => { alter?.Invoke(b); return Task.CompletedTask; };
+                    var task = asyncMethod.Invoke(manager, new object[] { partName, action });
+                    if (task != null)
+                    {
+                        var awaiter = task.GetType().GetMethod("GetAwaiter").Invoke(task, null);
+                        awaiter.GetType().GetMethod("GetResult").Invoke(awaiter, null);
+                    }
+                    return;
                 }
-                return;
-            }
 
-            // Fall back to synchronous API if available
-            var syncMethod = manager.GetType().GetMethod("AlterPartDefinition", new Type[] { typeof(string), typeof(Action<ContentPartDefinitionBuilder>) });
-            if (syncMethod != null)
-            {
-                syncMethod.Invoke(manager, new object[] { partName, alter });
-                return;
-            }
+                // Fall back to synchronous API if available
+                var syncMethod = manager.GetType().GetMethod("AlterPartDefinition", new Type[] { typeof(string), typeof(Action<ContentPartDefinitionBuilder>) });
+                if (syncMethod != null)
+                {
+                    syncMethod.Invoke(manager, new object[] { partName, alter });
+                    return;
+                }
+                throw new NotSupportedException(ex+"AlterPartDefinition does not expose GetTypeDefinition or GetTypeDefinitionAsync on this platform.");
+                // If nothing is available, no-op so migrations and compile succeed; this is intentional
+                // to allow iterative migration. Removing/altering content definitions at runtime
+                // might be required later.
 
-            // If nothing is available, no-op so migrations and compile succeed; this is intentional
-            // to allow iterative migration. Removing/altering content definitions at runtime
-            // might be required later.
+            }
         }
 
         public static void AlterTypeDefinition(this IContentDefinitionManager manager, string typeName, Action<ContentTypeDefinitionBuilder> alter)
         {
             if (manager == null) throw new ArgumentNullException(nameof(manager));
 
-            var asyncCandidates = manager.GetType().GetMethods().Where(m => m.Name == "AlterTypeDefinitionAsync").ToArray();
-            var asyncMethod = asyncCandidates.FirstOrDefault(m => m.GetParameters().Length == 2);
-            if (asyncMethod != null)
+            try
             {
-                Func<ContentTypeDefinitionBuilder, Task> action = b => { alter?.Invoke(b); return Task.CompletedTask; };
-                var task = asyncMethod.Invoke(manager, new object[] { typeName, action });
-                if (task != null)
+                manager.AlterTypeDefinitionAsync(typeName, alter).GetAwaiter().GetResult();
+
+                return;
+
+            }
+            catch (Exception ex)
+            {
+
+                var asyncCandidates = manager.GetType().GetMethods().Where(m => m.Name == "AlterTypeDefinitionAsync").ToArray();
+                var asyncMethod = asyncCandidates.FirstOrDefault(m => m.GetParameters().Length == 2);
+                if (asyncMethod != null)
                 {
-                    var awaiter = task.GetType().GetMethod("GetAwaiter").Invoke(task, null);
-                    awaiter.GetType().GetMethod("GetResult").Invoke(awaiter, null);
+                    Func<ContentTypeDefinitionBuilder, Task> action = b => { alter?.Invoke(b); return Task.CompletedTask; };
+                    var task = asyncMethod.Invoke(manager, new object[] { typeName, action });
+                    if (task != null)
+                    {
+                        var awaiter = task.GetType().GetMethod("GetAwaiter").Invoke(task, null);
+                        awaiter.GetType().GetMethod("GetResult").Invoke(awaiter, null);
+                    }
+                    return;
                 }
-                return;
-            }
 
-            var syncMethod = manager.GetType().GetMethod("AlterTypeDefinition", new Type[] { typeof(string), typeof(Action<ContentTypeDefinitionBuilder>) });
-            if (syncMethod != null)
-            {
-                syncMethod.Invoke(manager, new object[] { typeName, alter });
-                return;
-            }
+                var syncMethod = manager.GetType().GetMethod("AlterTypeDefinition", new Type[] { typeof(string), typeof(Action<ContentTypeDefinitionBuilder>) });
+                if (syncMethod != null)
+                {
+                    syncMethod.Invoke(manager, new object[] { typeName, alter });
+                    return;
+                }
+                throw new NotSupportedException(ex+"AlterTypeDefinition does not expose GetTypeDefinition or GetTypeDefinitionAsync on this platform.");
 
-            // no-op fallback
+                // no-op fallback
+            }
         }
     }
 }
