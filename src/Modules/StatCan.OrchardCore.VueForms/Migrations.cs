@@ -89,6 +89,7 @@ namespace StatCan.OrchardCore.VueForms
                             Options = "{\"language\": \"html\"}"
                         })
                 )
+                .Attachable()
                 .WithDescription("Turns your content items into a vue form."));
 
             _contentDefinitionManager.AlterPartDefinition("VueFormScripts", part => part
@@ -171,8 +172,9 @@ namespace StatCan.OrchardCore.VueForms
                    .WithSettings(new TextFieldSettings() { Required = true, Hint = "The form's vue component options object. With liquid support." })
                    .WithPosition("1")
                    .WithEditor("CodeMirrorJS")
-               )
-            );
+                    )
+                    .Attachable()
+                );
 
             _contentDefinitionManager.AlterPartDefinition("VueComponent", part => part
                 .RemoveField("Script")
@@ -204,6 +206,7 @@ namespace StatCan.OrchardCore.VueForms
                         Hint = "Render this form as a Vue component, a standalone vue app or a vuetify app (wrapping with v-app)"
                     })
                 )
+                .Attachable()
             );
             _contentDefinitionManager.AlterTypeDefinition("VueForm", type => type.Securable());
             return 3;
@@ -289,6 +292,7 @@ namespace StatCan.OrchardCore.VueForms
                             Options = "{\"language\": \"html\"}"
                         })
                 )
+                .Attachable()
                 .WithDescription("Turns your content items into a vue form."));
 
             // add alias to VueForm and remove FlowPart
@@ -599,6 +603,7 @@ namespace StatCan.OrchardCore.VueForms
                         } },
                     })
                 )
+                .Attachable()
             );
         }
 
@@ -620,6 +625,7 @@ namespace StatCan.OrchardCore.VueForms
                         DisplayedContentTypes = new[] { "VueForm" }
                     })
                 )
+                .Attachable()
             );
         }
     }

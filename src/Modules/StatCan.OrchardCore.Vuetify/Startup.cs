@@ -17,6 +17,8 @@ namespace StatCan.OrchardCore.Vuetify
         {
            // services.AddScoped<IDataMigration, VuetifyMigrations>();
 
+           services.AddDataMigration<ScheduleMigrations>();
+
             services.AddScoped<IContentDisplayDriver, WidgetStylingPartDisplay>();
             services.AddScoped<IContentHandler, WidgetStylingPartHandler>();
             services.AddContentPart<WidgetStylingPart>();
@@ -77,7 +79,7 @@ namespace StatCan.OrchardCore.Vuetify
     {
         public override void ConfigureServices(IServiceCollection services)
         {
-            services.AddScoped<IDataMigration, ScheduleMigrations>();
+           // services.AddScoped<IDataMigration, ScheduleMigrations>();
         }
     }
     [Feature(Constants.Features.Tabs)]

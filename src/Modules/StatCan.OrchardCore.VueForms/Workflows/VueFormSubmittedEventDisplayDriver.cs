@@ -6,6 +6,7 @@ using YesSql;
 using OrchardCore.ContentManagement.Records;
 using OrchardCore.DisplayManagement.Views;
 using OrchardCore.Workflows.Display;
+using OrchardCore.DisplayManagement.Handlers; 
 
 namespace StatCan.OrchardCore.VueForms.Workflows
 {
@@ -27,11 +28,10 @@ namespace StatCan.OrchardCore.VueForms.Workflows
             activity.ExecuteForAllForms = model.ExecuteForAllForms;
             activity.VueFormIds = model.SelectedFormIds;
         }
-[System.Obsolete]
-        public override IDisplayResult Display(VueFormSubmittedEvent activity)
-        {
-            return Combine(
-               Shape($"VueFormSubmittedEvent_Fields_Thumbnail", new VueFormSubmittedEventViewModel(activity)).Location("Thumbnail", "Content"),
+         public override Task<IDisplayResult> DisplayAsync(VueFormSubmittedEvent activity, BuildDisplayContext context)
+    {
+        return CombineAsync(
+            Shape($"VueFormSubmittedEvent_Fields_Thumbnail", new VueFormSubmittedEventViewModel(activity)).Location("Thumbnail", "Content"),
                Factory($"VueFormSubmittedEvent_Fields_Design", async ctx =>
                {
                    var forms = await _session.QueryIndex<ContentItemIndex>(q => q.ContentType == "VueForm").ListAsync();
@@ -43,8 +43,26 @@ namespace StatCan.OrchardCore.VueForms.Workflows
 
                    return shape;
                }).Location("Design", "Content")
-           );
-        }
+        );
+    }
+// [System.Obsolete]
+//         public override IDisplayResult Display(VueFormSubmittedEvent activity)
+//         {
+//             return Combine(
+//                Shape($"VueFormSubmittedEvent_Fields_Thumbnail", new VueFormSubmittedEventViewModel(activity)).Location("Thumbnail", "Content"),
+//                Factory($"VueFormSubmittedEvent_Fields_Design", async ctx =>
+//                {
+//                    var forms = await _session.QueryIndex<ContentItemIndex>(q => q.ContentType == "VueForm").ListAsync();
+
+//                    var shape = new VueFormSubmittedEventViewModel(activity);
+//                    shape.ExecuteForAllForms = activity.ExecuteForAllForms;
+
+//                    shape.AllItems = await GetForms(activity);
+
+//                    return shape;
+//                }).Location("Design", "Content")
+//            );
+//         }
 
         private async Task<IList<SelectListItem>> GetForms(VueFormSubmittedEvent activity)
         {
