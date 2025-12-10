@@ -8,11 +8,9 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using Newtonsoft.Json.Linq;
 using OrchardCore.ContentManagement;
 using OrchardCore.ContentManagement.Handlers;
 using OrchardCore.ContentManagement.Metadata;
-using System.Text.Json.Nodes;
 using OrchardCore.ContentManagement.Metadata.Models;
 using OrchardCore.ContentManagement.Metadata.Settings;
 using OrchardCore.Email;
@@ -23,6 +21,10 @@ using OrchardCore.Settings;
 using OrchardCore.Users;
 using OrchardCore.Users.Models;
 using OrchardCore.Users.Services;
+using System.Text.Json;
+using System.Text.Json.Settings;
+using System.Text.Json.Nodes;
+using System.Text.Json.Dynamic;
 
 namespace StatCan.OrchardCore.Scripting
 {
@@ -85,21 +87,21 @@ namespace StatCan.OrchardCore.Scripting
 
                     var contentItem = GetUserSettingsAsync(contentManager, user, def).GetAwaiter().GetResult();
 
-                    // Use Newtonsoft JObject merge to avoid System.Text.Json overload mismatches.
-                    var propsObj = properties as JObject ?? JObject.FromObject(properties ?? new { });
-                    var contentItemObj = JObject.FromObject(contentItem);
-                    contentItemObj.Merge(propsObj, new Newtonsoft.Json.Linq.JsonMergeSettings { MergeArrayHandling = MergeArrayHandling.Replace });
-                    contentItem = contentItemObj.ToObject<ContentItem>();
-
+                    JsonMergeSettings _jsonMergeSettings = new()
+                    {
+                        MergeArrayHandling = MergeArrayHandling.Replace,
+                        MergeNullValueHandling = MergeNullValueHandling.Merge,
+                    };
+                    
+                    contentItem.Merge(properties, _jsonMergeSettings);
                     var updateContentContext = new UpdateContentContext(contentItem);
 
                     // invoke oc handlers
                     contentHandlers.InvokeAsync((handler, updateContentContext) => handler.UpdatingAsync(updateContentContext), updateContentContext, logger).GetAwaiter().GetResult();
                     contentHandlers.Reverse().InvokeAsync((handler, updateContentContext) => handler.UpdatedAsync(updateContentContext), updateContentContext, logger).GetAwaiter().GetResult();
 
-                    // set the object property (convert Newtonsoft JObject -> System.Text.Json.JsonNode)
-                    var contentJson = JObject.FromObject(contentItem).ToString();
-                    user.Properties[def.Name] = JsonNode.Parse(contentJson);
+                    // set the object property
+                    user.Properties[def.Name] = JObject.FromObject(contentItem);
 
                     userManager.UpdateAsync(user).GetAwaiter().GetResult();
                     return UpdateCustomUserSettingsStatus.Success;
@@ -229,27 +231,20 @@ namespace StatCan.OrchardCore.Scripting
         {
             return new[] { _updateUserProperties, _validateEmail, _updateEmail, _setRole, _isInRole, _isAuthenticated };
         }
-
+       
         private static async Task<ContentItem> GetUserSettingsAsync(IContentManager contentManager, User user, ContentTypeDefinition settingsType)
         {
             ContentItem contentItem;
-            if (user.Properties != null)
+            //if (user.Properties.TryGetValue(settingsType.Name, out var property))
+            if (user.Properties!= null && user.Properties.ContainsKey(settingsType.Name))
             {
-                // JsonObject doesn't expose TryGetValue in all target frameworks; enumerate safely.
-                var kv = user.Properties.FirstOrDefault(k => k.Key == settingsType.Name);
-                if (kv.Value != null)
-                {
-                    var json = kv.Value.ToJsonString();
-                    var existing = JObject.Parse(json).ToObject<ContentItem>();
+                var property = user.Properties[settingsType.Name];
 
-                    // Create a new item to take into account the current type definition.
-                    contentItem = await contentManager.NewAsync(existing.ContentType);
-                    contentItem.Merge(existing);
-                }
-                else
-                {
-                    contentItem = await contentManager.NewAsync(settingsType.Name);
-                }
+                var existing = property.ToObject<ContentItem>();
+
+                // Create a new item to take into account the current type definition.
+                contentItem = await contentManager.NewAsync(existing.ContentType);
+                contentItem.Merge(existing);
             }
             else
             {

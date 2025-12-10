@@ -27,7 +27,7 @@ namespace StatCan.OrchardCore.VueForms.Workflows
             activity.ExecuteForAllForms = model.ExecuteForAllForms;
             activity.VueFormIds = model.SelectedFormIds;
         }
-
+[System.Obsolete]
         public override IDisplayResult Display(VueFormSubmittedEvent activity)
         {
             return Combine(
