@@ -43,7 +43,7 @@ namespace StatCan.Themes.VuetifyTheme
 
         public int Create()
         {
-           // VuetifyThemeSettings();
+           VuetifyThemeSettings();
             VAppBar();
             VNavigationDrawer();
             VFooter();

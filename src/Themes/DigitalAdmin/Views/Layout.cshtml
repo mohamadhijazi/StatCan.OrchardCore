@@ -53,7 +53,7 @@
         catch { }
 
     // Branding is pre-rendered to allow resource injection
-    var brandingHtml = await DisplayAsync(await New.AdminBranding());
+   // var brandingHtml = await DisplayAsync(await New.AdminBranding());
 }
 <!DOCTYPE html>
 <html lang="@Orchard.CultureName()" dir="@Orchard.CultureDir()" data-tenant="@currentTenant" data-theme="@currentTheme" data-darkmode="@displayDarkMode">
@@ -97,7 +97,7 @@
     <div class="ta-wrapper">
         <div class="ta-navbar-top navbar-expand-lg bg-primary">
             <div class="d-flex w-100">
-                @brandingHtml
+                @* @brandingHtml *@
                 <div class="flex-grow-1">
                     @if (displayTitlesInTopbar)
                     {
