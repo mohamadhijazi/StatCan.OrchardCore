@@ -13,7 +13,7 @@
     {% render_section "HeadMeta", required: false %}
     {% resources type: "HeadScript" %}
   </head>
-  <body dir="{{ Culture.Dir }}">
+  <body dir="{{ Culture.Dir }}" data-att="myform">
     <div id="outdated"></div>
     <div id="vuetify-theme-app" v-cloak>
       <v-app>

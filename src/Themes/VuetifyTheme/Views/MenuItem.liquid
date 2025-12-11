@@ -1,6 +1,6 @@
 {%comment%}Can be removed in a future version. Replaced by adding the ContentPermissionPart directly on the ContentMenuItem{%endcomment%}
-{% assign canView = Model.ContentItem | user_can_view %}
-{% if canView %}
+ 
+ 
   {% if Model.HasItems %}
     <v-list-group 
       data-menu="group"
@@ -20,4 +20,4 @@
     {% shape_type Model "MenuItemLink" %}
     {{ Model | shape_render }}
   {% endif %}
-{% endif %}
+ 
