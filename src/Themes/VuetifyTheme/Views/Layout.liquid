@@ -18,8 +18,11 @@
     <div id="vuetify-theme-app" v-cloak>
       <v-app>
         <a class="d-sr-only-focusable" href="#main">{{ "Skip to main content" | t }}</a>
+        
+         {% render_section "Header", required: false %}
+        
         {% render_section "NavigationDrawer", required: false %}
-        {% render_section "Header", required: false %}
+       
         <v-main id="main">
           {% render_section "IEBanner", required: false %}
           {% assign breadcrumbNotEmpty = "Breadcrumb" | section_not_empy %}

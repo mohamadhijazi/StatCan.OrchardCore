@@ -59,7 +59,7 @@ document.addEventListener("DOMContentLoaded", function() {
   // console.log("loaded");
   new Vue({
     vuetify,
-    data: () => ({ drawer: null }),
+    data: () => ({ drawer: false }),
     methods: {
       darkMode() {
         this.$vuetify.theme.dark = !this.$vuetify.theme.dark;

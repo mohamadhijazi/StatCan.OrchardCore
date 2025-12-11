@@ -17,7 +17,7 @@
   {% if empty != width %}width="{{ width }}"{% endif %}
 >
   {% comment %} This icon allows the show/hide of the drawer in mobile mode {% endcomment %}
-  <v-app-bar-nav-icon class="hidden-lg-and-up" @click="drawer = !drawer"></v-app-bar-nav-icon>
+  <v-app-bar-nav-icon  @click="drawer = !drawer"></v-app-bar-nav-icon>
   {{ "AppBarLogo" | shape_new | shape_render }}
   <v-spacer></v-spacer>
   {% if Site.Properties.VuetifyThemeSettings.VuetifyThemeSettings.DisplayMode.Text == 'picker' %}
